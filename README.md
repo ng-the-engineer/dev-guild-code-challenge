@@ -1,13 +1,13 @@
 # dev-guild-code-challenge
 
-This is the solution to the code challenge of code challenge posted on [Slack guild-dev](https://ecs-grp.slack.com/archives/C02AMCCH38B/p1664224680245099).
+This is the solution to the code challenge posted on Slack [guild-dev](https://ecs-grp.slack.com/archives/C02AMCCH38B/p1664224680245099) channel, or a copy [here](./QUESTION.md).
 
 ### Pre-requisite
-Node runtime is installed
+Node runtime is installed (version 14.19.0 or above)
 
 ### Run Solution
 
-1. Clone my repo `git@github.com:ng-the-engineer/dev-guild-code-challenge.git`
+1. Clone the repo `git@github.com:ng-the-engineer/dev-guild-code-challenge.git`
 
 2. Run `node solution` in root directory.
 
@@ -43,6 +43,30 @@ Arthur Goodwin 8 ♥ Amanda Beier 92
 Brent Kohler 6 ♥ June Lakin 94
 ```
 
+##### Code
+
+```
+function matching(){
+    candidates.forEach((candidate) => {
+        const complement = getComplement(candidate.loveScore)
+        
+        const complementQueue = candidateMap[complement]
+        
+        if (complementQueue && complementQueue.length > 0) {
+            [head, ...tail] = complementQueue
+            candidateMap[complement] = tail
+            lovers.push([head, candidate])
+        } else {
+            const originalItems = candidateMap[candidate.loveScore] || []
+            candidateMap[candidate.loveScore] = [ ...originalItems, candidate ]
+        }   
+    })
+    return ({lovers})
+}
+```
+
+> The `candidateMap` is a array of object. The array index represents the loveScore. Each element (referred as complementQueue) is an array of candidates with the complement loveScore.
+
 ##### My hardware specification
 
 - MacBook Pro (16-inch, 2021)
@@ -53,17 +77,22 @@ Brent Kohler 6 ♥ June Lakin 94
 
 ### How good is this result?
 
-Let's begin with a baseline implementation. In `1-brute-force.js`, I have implement a two-level nested array to locate the matched pair. An average of 20 ms was recorded. The complexity is O(n^2). 
+Let's begin with a baseline implementation. In `1-brute-force.js`, I have implemented a two-level nested array to locate the matched pair. An average of 20 ms was recorded. The complexity is O(n^2). 
 
-I improved it in `2-indexed-score.js` where I first setup a map with loveScore as the key, and an array of candidates as the value. It became a one level array to locate the lovers, but spend more time to setup the map, as well as more memory for the map. It drammically reduced to 1 to 2 ms.
+I improved it in `2-indexed-score.js` where I first setup a map with loveScore as the key, and an array of candidates as the value. It became a one level array to locate the lovers, but spend more time to setup the map, as well as more memory. It drammically reduced to 1 to 2 ms. The complexity of search is O(n * log(n)).  Majority of time spent in building the map, which is log(n). The total complexity should be O(n * log(n)) + O(log(n)). But we can reduce it to O(n * log(n)).
 
-Next I changed the matching algorithm, with one level iteration and two arrays. One array is used for the map, similar as in the 2-indexed-score approach, another array is used for the result. The beauty of this approach is to build up the map and do the matching in one level of looping. The execution time further improved to around 0.5 ms, at the cost of using 0.5 MB of memory.
+Next I changed the matching algorithm, with one level iteration and two arrays. One array is used for the map, similar as in the 2-indexed-score approach, another array is used for the result. The beauty of this approach is to build up the map and do the matching in one level of looping. The execution time further improved to around 0.5 ms, at the cost of using 0.5 MB of memory. The complexity is O(n * log(n)).
 
-Last I based on the algorithm in 3-map-of-queue and converted it in an recursive approach. The idea is inspired by the implemenation of `reduce()` method. However the time was pretty worst, even worse than the brute force approach.
+Last I based on the algorithm in 3-map-of-queue and converted it in an recursive approach. The idea is inspired by the implemenation of `reduce()` method. However the time was pretty worst, even worse than the brute force approach. So I took it as a reference only.
+
+The `map-of-queue` approach is fast. But in term of scalability, 
+it is limited by the available heap memory allocated to the process, by default it is 1024 MB. Of course we can increase this value by passing a flag to the command. However, to deal with an unknown size of candidates. This approach has it flaw. Instead I would consider to use streaming and reactive library such as Rx.js. It is out of the scope of the requirement but will be interesting to explore further.
+
+
 
 ### Play around
 
-If you want to play around, run `node index` to get invoke all the four implementation in single command. To verify the result, please uncomment the print method in the end of each approach.
+If you want to play around, run `node index` to invoke all the four implementation in single command. To verify the result, please uncomment the print method in the end of each suite.
 
 ##### Example result
 
@@ -86,3 +115,5 @@ default: 21.7ms
 Memory approximatedly used: 9.91 MB
 Pairs of lovers: 18
 ```
+
+Thank you for reading!

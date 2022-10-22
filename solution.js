@@ -1,6 +1,5 @@
 const { printHeapUsed } = require('./utility')
 const mapOfQueue = require('./3-map-of-queue')
-// const { recursiveMatching, findLover } = require('./4-recursive-map-of-queue')
 const TOTAL = 'Execution time'
 
 suite_mapOfQueue()
